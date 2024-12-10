@@ -84,21 +84,20 @@ public class Cache extends Memoria {
         this.memoriaInferior = memoriaInferior;
     }
 
-    // Modificar a classe Cache para:
     @Override
     public int ler(int endereco) {
         quantidadeAcessos++;
         quantidadeLeituras++;
 
-            // Calcula o número de bits necessários
-            int bitsOffset = (int) (Math.log(tamanhoLinha) / Math.log(2));
-            int bitsIndice = (int) (Math.log(tamanhoConjunto) / Math.log(2));
-            System.out.println(bitsOffset + " "+ bitsIndice + " "+ endereco);
+        // Calcula o número de bits necessários
+        int bitsOffset = (int) (Math.log(tamanhoLinha) / Math.log(2));
+        int bitsIndice = (int) (Math.log(tamanhoConjunto) / Math.log(2));
+        System.out.println(bitsOffset + " " + bitsIndice + " " + endereco);
 
-            // Calcula offset, índice e tag
-            int offset = endereco & ((1 << bitsOffset) - 1); // Máscara para os bits do offset
-            int index = (endereco >> bitsOffset) & ((1 << bitsIndice) - 1); // Máscara para os bits do índice
-            int tag = bits.extract_bits(endereco, bitsOffset + bitsIndice, 32 - bitsOffset - bitsIndice);
+        // Calcula offset, índice e tag
+        int offset = endereco & ((1 << bitsOffset) - 1); // Máscara para os bits do offset
+        int index = (endereco >> bitsOffset) & ((1 << bitsIndice) - 1); // Máscara para os bits do índice
+        int tag = endereco >> (bitsOffset + bitsIndice); // Calcula a tag manualmente
 
         System.out.printf("Acessando endereço %d (Offset: %d, Index: %d, Tag: %d)%n", endereco, offset, index, tag);
 
@@ -121,16 +120,15 @@ public class Cache extends Memoria {
         return latencia + dado;
     }
 
-
-
-
     @Override
     public void escrever(int endereco, int dado) {
         quantidadeAcessos++;
         quantidadeEscritas++;
-        int offset = endereco % tamanhoLinha;
-        int index = (endereco / tamanhoLinha) % tamanhoConjunto;
-        int tag = endereco / (tamanhoLinha * tamanhoConjunto);
+        int bitsOffset = (int) (Math.log(tamanhoLinha) / Math.log(2));
+        int bitsIndice = (int) (Math.log(tamanhoConjunto) / Math.log(2));
+        int offset = endereco & ((1 << bitsOffset) - 1);
+        int index = (endereco >> bitsOffset) & ((1 << bitsIndice) - 1);
+        int tag = bits.extract_bits(endereco, bitsOffset + bitsIndice, 32 - bitsOffset - bitsIndice);
 
         for (LinhaCache linha : conjuntos[index]) {
             if (linha.tag == tag) {
