@@ -11,7 +11,7 @@ public class App {
         cacheL2.conectarMemoriaInferior(memoriaPrincipal);
         cacheL1.conectarMemoriaInferior(cacheL2);
 
-        Processador processador = new Processador("sequencial", 4, 1280, 9000);
+        Processador processador = new Processador("sequencial", 32, 80000, 50000);
 
         processador.executar(cacheL1);
 
